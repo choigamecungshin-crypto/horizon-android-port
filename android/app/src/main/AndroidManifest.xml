@@ -14,6 +14,9 @@
         android:theme="@android:style/Theme.Material.NoActionBar">
         <activity
             android:name="dev.gpui.mobile.GpuiInputActivity"
+            android:resizeableActivity="true"
+            android:minWidth="480dp"
+            android:minHeight="320dp"
             android:configChanges="orientation|keyboardHidden|keyboard|screenSize|smallestScreenSize|screenLayout|uiMode|density"
             android:exported="true"
             android:screenOrientation="unspecified"
