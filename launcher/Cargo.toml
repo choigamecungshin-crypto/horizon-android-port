@@ -7,13 +7,13 @@ description = "Downloads, prepares and starts Horizon builds"
 
 [workspace]
 
+[lib]
+name = "horizon_launcher"
+path = "src/lib.rs"
+
 [dependencies]
 # The catalog and mod-owned trait injections share their generation rules.
 horizon-mod-api-gen = { path = "../crates/horizon-mod-api-gen" }
-# GPUI Fast (longbridge/gpui-fast): Zed's GPUI with retained views and cached scroll layers, under
-# its own name. wgpu renders on Linux, not blade (#3812).
-gpui = { package = "gpui-fast", version = "0.1.13" }
-gpui_platform = { package = "gpui-fast-platform", version = "0.1.13", features = ["wayland", "x11", "font-kit"] }
 ureq = { version = "2", features = ["json", "tls"], default-features = false }
 serde = { version = "1", features = ["derive"] }
 serde_json = "1"
@@ -108,3 +108,16 @@ syn = "2"
 
 [profile.release]
 strip = true
+
+# Desktop: keep the original GPUI Fast renderer and platform.
+[target.'cfg(not(target_os = "android"))'.dependencies]
+gpui = { package = "gpui-fast", version = "0.1.13" }
+gpui_platform = { package = "gpui-fast-platform", version = "0.1.13", features = ["wayland", "x11", "font-kit"] }
+
+# Android: GPUI Mobile hosts the exact same launcher view tree on Vulkan / OpenGL ES.
+[target.'cfg(target_os = "android")'.dependencies]
+gpui = { package = "gpui-pre", version = "=0.3.10", default-features = false }
+gpui_mobile = { package = "gpui-pre-mobile", git = "https://github.com/longbridge/gpui-mobile", rev = "7548ebc4b24f00494af9976af8852c7163ded9ce", default-features = false }
+android-activity = { version = "0.6", features = ["native-activity"] }
+android_logger = "0.15"
+log = "0.4"
