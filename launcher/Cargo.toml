@@ -64,8 +64,6 @@ horizon-telemetry = { path = "../crates/horizon-telemetry" }
 horizon-protocol = { path = "../crates/horizon-protocol" }
 # level.dat and servers.dat (the worlds and server lists of instances)
 horizon-world = { path = "../crates/horizon-world" }
-# Deleting a world moves it to the system's trash
-trash = "5"
 # Backup names carry the local time, as vanilla's do
 base64 = "0.22"
 chrono = { version = "0.4", default-features = false, features = ["clock"] }
@@ -113,8 +111,10 @@ syn = "2"
 [profile.release]
 strip = true
 
-# Desktop: keep the original GPUI Fast renderer and platform.
+# Desktop-only integrations: keep OS trash handling off Android.
 [target.'cfg(not(target_os = "android"))'.dependencies]
+trash = "5"
+# Desktop: keep the original GPUI Fast renderer and platform.
 gpui = { package = "gpui-fast", version = "0.1.13", optional = true }
 gpui_platform = { package = "gpui-fast-platform", version = "0.1.13", features = ["wayland", "x11", "font-kit"], optional = true }
 
