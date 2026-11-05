@@ -55,3 +55,7 @@ pub mod uninstall_aside;
 pub mod update_handoff;
 pub mod wardrobe;
 pub mod worlds;
+
+// Share the original launcher UI between desktop and Android.
+extern crate self as horizon_launcher;
+include!("launcher_ui.rs");
