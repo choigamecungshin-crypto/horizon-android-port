@@ -11,8 +11,10 @@ name = "main"
 crate-type = ["cdylib"]
 
 [target.'cfg(target_os = "android")'.dependencies]
-horizon-client = { path = "../../crates/horizon-client", default-features = false, features = ["audio"] }
-winit = { version = "0.30.13", features = ["android-native-activity"] }
+horizon-launcher = { path = "../../launcher" }
+android-activity = { version = "0.6", features = ["native-activity"] }
+android_logger = "0.15"
+log = "0.4"
 
 [lints]
 workspace = true
