@@ -65,6 +65,10 @@ In the Rust client, with vanilla assets and no mods or shaders:
   </tr>
 </table>
 
+## Android port
+
+This fork has an Android development branch. The target is the original Horizon game UI and engine on Android, with Vulkan and OpenGL ES rendering. See [the Android port plan](docs/android-port.md) for implementation status and compatibility requirements; Android support is not yet complete.
+
 ## Host a server
 
 The launcher's **Servers** page creates, starts, backs up and updates a server, and invites friends over Tailscale. On a VPS, `horizon-server` installs with one command and needs no Java. [Host a server](https://playhorizon.dev/docs/hosting) ([reference](docs/hosting.md)).
