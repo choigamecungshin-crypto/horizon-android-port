@@ -11,6 +11,10 @@ description = "Downloads, prepares and starts Horizon builds"
 name = "horizon_launcher"
 path = "src/lib.rs"
 
+[features]
+default = ["desktop-gpui"]
+desktop-gpui = ["dep:gpui", "dep:gpui_platform"]
+
 [dependencies]
 # The catalog and mod-owned trait injections share their generation rules.
 horizon-mod-api-gen = { path = "../crates/horizon-mod-api-gen" }
@@ -111,8 +115,8 @@ strip = true
 
 # Desktop: keep the original GPUI Fast renderer and platform.
 [target.'cfg(not(target_os = "android"))'.dependencies]
-gpui = { package = "gpui-fast", version = "0.1.13" }
-gpui_platform = { package = "gpui-fast-platform", version = "0.1.13", features = ["wayland", "x11", "font-kit"] }
+gpui = { package = "gpui-fast", version = "0.1.13", optional = true }
+gpui_platform = { package = "gpui-fast-platform", version = "0.1.13", features = ["wayland", "x11", "font-kit"], optional = true }
 
 # Android: GPUI Mobile hosts the exact same launcher view tree on Vulkan / OpenGL ES.
 [target.'cfg(target_os = "android")'.dependencies]
