@@ -37,6 +37,7 @@ pub fn to_folder(path: &Path, dir: &Path) -> Result<(), String> {
     std::fs::rename(path, &target).map_err(|e| e.to_string())
 }
 
+#[cfg(not(target_os = "android"))]
 fn system_trash(path: &Path) -> Result<(), String> {
     // On Windows the crate starts COM on the calling thread and panics when that thread already
     // runs it in the other mode (RPC_E_CHANGED_MODE). A worker of GPUI's thread pool can, and a
@@ -107,4 +108,12 @@ mod tests {
         let failed: Result<(), String> = on_own_thread(|| panic!("Call to CoInitializeEx failed"));
         assert_eq!(failed, Err("Call to CoInitializeEx failed".into()));
     }
+}
+
+#[cfg(target_os = "android")]
+fn system_trash(path: &Path) -> Result<(), String> {
+    // Android has no desktop trash API. Keep deletions recoverable in a sibling
+    // folder inside the same game directory instead of compiling the desktop crate.
+    let parent = path.parent().ok_or("Nothing to move")?;
+    to_folder(path, &parent.join(".horizon-trash"))
 }
