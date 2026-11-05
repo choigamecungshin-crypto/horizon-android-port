@@ -64,12 +64,22 @@ See [menus](menus.md), [mods](mods.md), [native mods](native-mods.md),
 ## Current branch status
 
 - [x] Repository forked from the upstream Horizon history.
-- [x] Android graphics settings expose Vulkan and an explicitly named OpenGL ES path.
-- [ ] Android activity/lifecycle entry point.
-- [ ] ARM64 Android APK build and install test.
-- [ ] Original GUI touch/input adaptation.
-- [ ] Vulkan and GLES device validation.
-- [ ] Mod and shader compatibility validation on Android.
+- [x] Android NativeActivity entry point using the AndroidApp handle required by winit 0.30.
+- [x] Android app-private profile directory for game data, options, logs and saves.
+- [x] Dedicated Android Gradle application shell using NativeActivity (no desktop launcher UI).
+- [x] ARM64 APK build workflow added to GitHub Actions.
+- [x] Existing wgpu dependency graph selects Vulkan and GLES backends for Android targets.
+- [ ] First successful CI APK build and package inspection.
+- [ ] Install and launch on a physical ARM64 device.
+- [ ] Confirm the original title/menu GUI renders from player-provided prepared resources.
+- [ ] Touch gestures, text input/IME, back navigation and safe-area adaptation.
+- [ ] Vulkan and GLES device validation and backend selection UI.
+- [ ] Verify .hmod, .hnmod, WGSL and GLSL shader packs on Android.
+
+The APK does not bundle Minecraft assets or prepared game data. Until an Android
+resource-import flow is added, the client expects its 26.3 resource directory at
+files/horizon/.local/horizon-client/26.3 inside app-private storage. Prepare those
+resources from the player's own licensed Minecraft installation; never commit them.
 
 A feature is not considered Android-supported merely because its shared Rust crate
 compiles. It must pass an Android build and a real-device test for the relevant
