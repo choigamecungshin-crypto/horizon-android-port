@@ -44,6 +44,8 @@ jobs:
       - name: Install cargo-ndk
         run: cargo install cargo-ndk --locked
       - name: Build native ARM64 library
+        env:
+          HORIZON_MSA_CLIENT_ID: ${{ vars.HORIZON_MSA_CLIENT_ID }}
         run: cargo ndk --platform 26 -t arm64-v8a -o android/app/src/main/jniLibs build --manifest-path android/native/Cargo.toml --release
       - uses: gradle/actions/setup-gradle@v4
         with:
