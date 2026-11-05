@@ -1,18 +1,20 @@
-# Horizon for Android
+# Horizon Android launcher
 
-This packages the existing Horizon game client as an Android NativeActivity,
-not as a separate launcher UI. With valid Horizon 26.3 resources present, the
-existing Rust client owns the title screen, menus, settings, game screens,
-rendering, mods and shaders.
+This target runs Horizon's **original Rust/GPUI launcher UI** on Android. It does
+not replace the launcher with Compose, WebView, or a recreated mock screen:
+desktop and Android call the same `open_launcher` callback and compile the same
+Home, Mods, Servers, Versions, Settings, account, import, and other launcher
+views.
 
-## Target
+## Rendering
 
-- ARM64 (arm64-v8a) first; Android API 26 minimum.
-- Winit 0.30 + NativeActivity.
-- WGPU Vulkan and OpenGL ES backends.
-- App-private files under files/horizon.
-- Audio enabled through CPAL/AAudio. Desktop controller enumeration is not
-  enabled in this initial mobile build.
+- ARM64 (`arm64-v8a`), Android API 26+.
+- GPUI Mobile / wgpu on Android.
+- Vulkan is preferred; OpenGL ES 3 is the fallback where supported by the
+  Android graphics stack.
+- Touch, keyboard/IME and Android safe-area support come from GPUI Mobile.
+- Desktop builds continue to use GPUI Fast; Android dependencies are selected
+  only for `target_os = "android"`.
 
 ## Build
 
@@ -21,28 +23,26 @@ build-tools 35.0.0 and NDK 28.2.13676358.
 
 From the repository root:
 
-~~~sh
+```sh
 rustup target add aarch64-linux-android
 cargo install cargo-ndk --locked
-cargo ndk --platform 26 -t arm64-v8a -o android/app/src/main/jniLibs build --manifest-path android/native/Cargo.toml --release
+cargo ndk --manifest-path android/native/Cargo.toml --platform 26 -t arm64-v8a -o android/app/src/main/jniLibs build --release
 gradle --no-daemon -p android assembleDebug
-~~~
+```
 
-APK output: android/app/build/outputs/apk/debug/app-debug.apk.
+APK: `android/app/build/outputs/apk/debug/app-debug.apk`.
 
-## Resources
+GitHub Actions runs the same ARM64 build and uploads the APK as
+`horizon-android-arm64-debug`.
 
-Minecraft assets, jars and prepared game tables are not bundled. Prepare
-Horizon 26.3 resources from a Minecraft Java Edition installation licensed to
-the player, then place them at:
+## Current boundary
 
-~~~text
-<app-internal-files>/horizon/.local/horizon-client/26.3/
-~~~
+This is the **launcher app target**, not the Minecraft game port. The UI and
+launcher-side pages are shared with desktop, but Android-specific game process
+launching, desktop-only OS integrations, document import flows, and physical
+device testing still need validation or implementation. A successful APK build
+does not prove every launcher action works on a phone.
 
-The in-app resource importer/document picker is not implemented yet. Do not
-commit prepared resources, account tokens, signing keys or APKs.
-
-A successful cross-compile is not a device test. Vulkan, GLES, surface
-recreation, lifecycle interruptions, touch/IME, mod loading and shader-pack
-compatibility still need physical Adreno and Mali validation.
+Minecraft assets, jars, accounts, tokens, and game data are not bundled. Use
+the launcher's existing user-owned resource/import flow when it is supported;
+do not commit proprietary game assets or credentials to this repository.
