@@ -240,16 +240,11 @@ impl GraphicsApi {
         ];
         const LINUX: [GraphicsApi; 3] =
             [GraphicsApi::Auto, GraphicsApi::Vulkan, GraphicsApi::OpenGl];
-        // Android exposes the same wgpu backends, but labels the GLES path accurately below.
-        const ANDROID: [GraphicsApi; 3] =
-            [GraphicsApi::Auto, GraphicsApi::Vulkan, GraphicsApi::OpenGl];
         const MACOS: [GraphicsApi; 1] = [GraphicsApi::Auto];
         if cfg!(windows) {
             &WINDOWS
         } else if cfg!(target_os = "macos") {
             &MACOS
-        } else if cfg!(target_os = "android") {
-            &ANDROID
         } else {
             &LINUX
         }
@@ -267,7 +262,6 @@ impl GraphicsApi {
             GraphicsApi::Auto => "Auto",
             GraphicsApi::Vulkan => "Vulkan",
             GraphicsApi::Dx12 => "DirectX 12",
-            GraphicsApi::OpenGl if cfg!(target_os = "android") => "OpenGL ES",
             GraphicsApi::OpenGl => "OpenGL",
         }
     }
