@@ -2352,6 +2352,58 @@ fn glfw_modifiers(modifiers: winit::keyboard::ModifiersState) -> u32 {
 /// past 4 is not GLFW's index everywhere. Buttons 0–4 are the numbering
 /// `keybinds::mouse_name` names (`key.mouse.<index + 1>`) and vanilla's
 /// `InputConstants` reads.
+/// Converts the primary Android finger into the mouse events the original GUI already handles.
+/// Only one finger owns the pointer at a time; extra fingers are ignored so a pinch
+/// cannot accidentally activate two menu buttons.
+#[cfg(target_os = "android")]
+fn android_touch_mouse_events(
+    active: &mut Option<u64>,
+    event: &WindowEvent,
+) -> Option<Vec<WindowEvent>> {
+    use winit::event::TouchPhase;
+
+    let WindowEvent::Touch {
+        device_id,
+        phase,
+        location,
+        id,
+        ..
+    } = event
+    else {
+        return None;
+    };
+
+    let mut events = Vec::with_capacity(2);
+    let move_pointer = || WindowEvent::CursorMoved {
+        device_id: *device_id,
+        position: *location,
+    };
+    let mouse_button = |state| WindowEvent::MouseInput {
+        device_id: *device_id,
+        state,
+        button: MouseButton::Left,
+    };
+
+    match phase {
+        TouchPhase::Started if active.is_none() => {
+            *active = Some(*id);
+            events.push(move_pointer());
+            events.push(mouse_button(ElementState::Pressed));
+        }
+        TouchPhase::Moved if *active == Some(*id) => {
+            events.push(move_pointer());
+        }
+        TouchPhase::Ended | TouchPhase::Cancelled if *active == Some(*id) => {
+            events.push(move_pointer());
+            events.push(mouse_button(ElementState::Released));
+            *active = None;
+        }
+        _ => {}
+    }
+
+    Some(events)
+}
+
 fn glfw_button(button: MouseButton) -> i32 {
     match button {
         MouseButton::Left => 0,
@@ -2509,6 +2561,9 @@ struct Game<'a> {
     left: bool,
     right: bool,
     cursor: (f32, f32),
+    /// The finger currently driving the Android GUI pointer, if any.
+    #[cfg(target_os = "android")]
+    active_touch: Option<u64>,
     /// The cursor icon the window shows (`widgets::take_cursor` each frame).
     cursor_icon: horizon_client::widgets::Cursor,
     captured: bool,
@@ -17531,6 +17586,13 @@ impl ApplicationHandler for Game<'_> {
         self.previous = Instant::now();
     }
     fn window_event(&mut self, event_loop: &ActiveEventLoop, id: WindowId, event: WindowEvent) {
+        #[cfg(target_os = "android")]
+        if let Some(events) = android_touch_mouse_events(&mut self.active_touch, &event) {
+            for event in events {
+                self.handle_window_event(event_loop, id, event, input_trace::InputOrigin::User);
+            }
+            return;
+        }
         let key = if self.window.as_ref().is_some_and(|w| w.id() == id)
             && let WindowEvent::KeyboardInput {
                 event,
@@ -19333,6 +19395,8 @@ impl<'a> Game<'a> {
             left: false,
             right: false,
             cursor: (0.0, 0.0),
+            #[cfg(target_os = "android")]
+            active_touch: None,
             cursor_icon: horizon_client::widgets::Cursor::Arrow,
             captured: false,
             capture_mode: None,
@@ -21536,6 +21600,9 @@ fn run_event_loop(mut game: Game<'_>) -> Result<()> {
 /// The loading screen's state while the worker loads the resources.
 struct Loading {
     window: Option<Arc<Window>>,
+    /// The finger currently driving the Android title/menu pointer, if any.
+    #[cfg(target_os = "android")]
+    active_touch: Option<u64>,
     renderer: Option<Renderer>,
     /// The boot screen's atlas, until the pack's GUI atlas replaces it.
     boot: horizon_client::hud::HudAtlas,
@@ -21668,6 +21735,18 @@ impl Loading {
     }
     fn window_event(&mut self, event_loop: &ActiveEventLoop, id: WindowId, mut event: WindowEvent) {
         if self.window.as_ref().is_none_or(|w| w.id() != id) {
+            return;
+        }
+        #[cfg(target_os = "android")]
+        if let Some(events) = android_touch_mouse_events(&mut self.active_touch, &event) {
+            for mut event in events {
+                follow_keymap(&mut event);
+                if let Err(error) = self.menu_event(event_loop, event) {
+                    self.error = Some(error);
+                    event_loop.exit();
+                    break;
+                }
+            }
             return;
         }
         follow_keymap(&mut event);
@@ -21995,6 +22074,8 @@ fn run_loading(
     let menu = startup_menu::StartupMenu::new(&options, pack_error.as_deref())?;
     let loading = Loading {
         window: None,
+        #[cfg(target_os = "android")]
+        active_touch: None,
         renderer: None,
         boot: horizon_client::hud::HudAtlas::boot(),
         gui: None,
