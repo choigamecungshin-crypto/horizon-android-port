@@ -561,7 +561,7 @@ impl Launcher {
             .flex()
             .flex_col()
             .flex_none()
-            .w(px(if self.window_width < 720. { 176. } else { SIDEBAR }))
+            .w(px(if self.window_width < 600. { 120. } else if self.window_width < 900. { 152. } else { SIDEBAR }))
             .my(px(MARGIN))
             .ml(px(MARGIN))
             .overflow_hidden()
@@ -685,7 +685,7 @@ impl Launcher {
                             .child(tr("Sign in with Microsoft")),
                     )
                     .on_click(cx.listener(|this, _: &ClickEvent, _, cx| {
-                        this.start_sign_in();
+                        this.sign_in_to_play();
                         cx.notify();
                     })),
                 &t,
@@ -734,7 +734,7 @@ impl Launcher {
             .flex_none()
             .items_center()
             .gap(px(12.))
-            .px(px(if self.window_width < 720. { 12. } else { 32. }))
+            .px(px(if self.window_width < 600. { 8. } else if self.window_width < 900. { 12. } else { 32. }))
             .pt(px(14.))
             .child(strip)
             .children(self.toast_in_topbar())
