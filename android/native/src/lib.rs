@@ -1,27 +1,25 @@
-//! Android NativeActivity entry point for Horizon.
+//! Android NativeActivity entry point for the original Horizon launcher.
 #[cfg(target_os = "android")]
 #[unsafe(no_mangle)]
-pub fn android_main(app: winit::platform::android::activity::AndroidApp) {
+fn android_main(app: android_activity::AndroidApp) {
+    android_logger::init_once(
+        android_logger::Config::default()
+            .with_max_level(log::LevelFilter::Info)
+            .with_tag("Horizon"),
+    );
     let Some(data_dir) = app.internal_data_path() else {
-        eprintln!("Horizon: Android did not provide an internal app data directory");
+        log::error!("Android did not provide an app-private files directory");
         return;
     };
-
-    // Keep game files inside Android's app-specific files directory.
-    let game_dir = data_dir.join("horizon");
-    if let Err(error) = std::fs::create_dir_all(&game_dir) {
-        eprintln!("Horizon: cannot create app data directory: {error}");
+    let home = data_dir.join("horizon");
+    if let Err(error) = std::fs::create_dir_all(&home) {
+        log::error!("Cannot create Horizon data directory: {error}");
         return;
     }
-    if let Err(error) = std::env::set_current_dir(&game_dir) {
-        eprintln!("Horizon: cannot enter app data directory: {error}");
+    if let Err(error) = std::env::set_current_dir(&home) {
+        log::error!("Cannot enter Horizon data directory: {error}");
         return;
     }
-
-    horizon_client::logging::set_game_home(game_dir.clone());
-    horizon_client::logging::set_player_dir(game_dir);
-    horizon_client::android::install_android_app(app);
-
-    // Run the existing Horizon startup, title GUI, game screens and systems.
-    horizon_client::entry::main();
+    log::info!("Starting original Horizon launcher UI");
+    horizon_launcher::run_android(app);
 }
