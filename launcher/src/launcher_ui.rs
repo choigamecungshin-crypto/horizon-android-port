@@ -1,5 +1,5 @@
-//! Horizon launcher: installs Horizon builds, prepares them from the player's own Minecraft,
-//! and starts the client or a dedicated server.
+// Horizon launcher: installs Horizon builds, prepares them from the player's own Minecraft,
+// and starts the client or a dedicated server.
 
 mod agents_page;
 mod art;
@@ -85,14 +85,9 @@ use gpui::{
     KeyBinding, KeyDownEvent, Menu, MenuItem, MouseDownEvent, PathPromptOptions, Pixels, Point,
     SharedString, Stateful, Subscription, Window, WindowBounds, WindowOptions,
 };
-use horizon_launcher::account::{self, Accounts, SignIn, SignInState};
-use horizon_launcher::backend::{self, Job, Msg, Release, Running, Settings, Updates};
-use horizon_launcher::build_import;
-use horizon_launcher::i18n::{self, tr, trf};
-use horizon_launcher::instances;
-use horizon_launcher::native_mods;
-use horizon_launcher::native_status;
-use horizon_launcher::telemetry;
+use crate::account::{Accounts, SignIn, SignInState};
+use crate::backend::{Job, Msg, Release, Running, Settings, Updates};
+use crate::i18n::{tr, trf};
 use scrollbar::Scrollbar;
 use std::borrow::Cow;
 use std::collections::{HashMap, VecDeque};
