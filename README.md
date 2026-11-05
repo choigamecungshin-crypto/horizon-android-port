@@ -67,7 +67,7 @@ In the Rust client, with vanilla assets and no mods or shaders:
 
 ## Android port
 
-This fork has an Android development branch. The target is the original Horizon game UI and engine on Android, with Vulkan and OpenGL ES rendering. See [the Android port plan](docs/android-port.md) for implementation status and compatibility requirements; Android support is not yet complete.
+This fork has an Android launcher development branch. It packages the original Horizon launcher UI on Android using GPUI Mobile, with Vulkan preferred and OpenGL ES fallback. Minecraft gameplay is not included in this launcher-only target. See [the Android port plan](docs/android-port.md) for status.
 
 ## Host a server
 
