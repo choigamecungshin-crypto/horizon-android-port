@@ -4,6 +4,7 @@ on:
     branches: [android-port]
     paths:
       - "android/**"
+      - "launcher/**"
       - "crates/horizon-client/**"
       - "crates/horizon-client-render/**"
       - "Cargo.toml"
