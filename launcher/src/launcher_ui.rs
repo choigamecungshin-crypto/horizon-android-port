@@ -3056,7 +3056,7 @@ impl Launcher {
             .flex()
             .flex_col()
             .flex_none()
-            .w(px(theme::SIDEBAR))
+            .w(px(if self.window_width < 720. { 176. } else { theme::SIDEBAR }))
             .h_full()
             .px(px(10.))
             .pb(px(12.))
@@ -5365,7 +5365,7 @@ impl Render for Launcher {
                                                     .flex()
                                                     .w_full()
                                                     .min_w_0()
-                                                    .px(px(theme::PAGE_GUTTER))
+                                                    .px(px(if self.window_width < 720. { 12. } else { theme::PAGE_GUTTER }))
                                                     // The glass look's page heads hold their
                                                     // own 40 px above the title.
                                                     .pt(px(if self.page == Page::Play || t.glass {
